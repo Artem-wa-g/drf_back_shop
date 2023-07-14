@@ -1,0 +1,65 @@
+version: "3.9"
+services:
+  db_shop:
+    image: postgres:15
+    container_name: postgres_db_shop
+    volumes:
+      - ./.project_data/postgres:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    env_file:
+      - .env
+
+  redis_shop:
+    image: redis:7
+    container_name: redis_cache_shop
+#    command: redis-server /redis.conf
+    volumes:
+      - ./.project_data/redis:/data
+      - ./docker/redis/redis.conf:/redis.conf
+    ports:
+      - "${REDIS_PORT}:6379"
+
+
+  app_shop:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    container_name: app_main_shop
+    depends_on:
+      - db_shop
+      - redis_shop
+    working_dir: /drf_back_shop/
+    command: uvicorn bootstrap:app --host 0.0.0.0 --port $WEB_SERVER_PORT --reload
+    environment:
+      DEBUG: 1
+    volumes:
+      - .:/drf_back_shop
+    ports:
+      - "${WEB_SERVER_PORT}:7772"
+    restart: on-failure
+
+
+#  nginx:
+#      image: nginx:1.23-alpine
+#      ports:
+#        - 80:80
+#        - 443:443
+#      restart: always
+#      environment:
+#        - NGINX_HOST
+#      volumes:
+#        #- ./docker/nginx/first_start/:/etc/nginx/templates/:ro
+#        - ./docker/nginx/templates/:/etc/nginx/templates/:ro
+#        - ./docker/certbot/www:/var/www/certbot/:ro
+#        - ./docker/certbot/conf/:/etc/nginx/ssl/:ro
+#  certbot:
+#    image: certbot/certbot:v2.5.0
+#    volumes:
+#      - ./docker/certbot/www/:/var/www/certbot/:rw
+#      - ./docker/certbot/conf/:/etc/letsencrypt/:rw
+
+
+
