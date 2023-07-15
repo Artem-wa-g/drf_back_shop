@@ -1,7 +1,7 @@
 FROM python:3.11
-RUN mkdir /drf_back_shop
+RUN mkdir /app_shop
 
-WORKDIR /drf_back_shop
+WORKDIR /app_shop
 
 COPY requirements.txt .
 
