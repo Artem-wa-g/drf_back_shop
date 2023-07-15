@@ -1,48 +1,51 @@
 from rest_framework import generics
-from django.forms import model_to_dict
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
-from .models import Product
-# from .serialize import
-from rest_framework.views import APIView
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-
+from .permissions import IsAdminOrReadOnly
 from .serialize import ProductSerializer
-
-
-# class ProductViewSet(viewsets.ModelViewSet):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-#
-#     @action(methods=['get'], detail=False)
-#     def cader(self, request):
-#         cat = Product.objects.all()
-#         return Response({'car': cat})
+from .models import Product, Category
 
 
 # TODO: Удобно и понятно использовать если надо делать ограничение доступа
-class ProductApiList(generics.ListAPIView):  # TODO: реализует get and post request
+class ProductApiList(generics.ListCreateAPIView):  # TODO: реализует get and post request
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    # permission_classes = (IsAuthenticated,)
 
 
 class ProductApiUpdate(generics.UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = (IsAuthenticated,)
     # authentication_classes = (TokenAuthentication, )  # Указываем конкретно на, что вешаем аутентификацию
 
 
-# CRUD - для примера
-class ProductApiDetail(generics.RetrieveUpdateDestroyAPIView):
+class ProductAPIDestroy(generics.RetrieveDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = (IsAdminOrReadOnly,)
 
 
-# TODO: Вот что делают классы выше)))
+class CategoryApiList(generics.ListCreateAPIView):  # TODO: реализует get and post request
+    queryset = Category.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+
+class CategoryApiUpdate(generics.UpdateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class CategoryAPIDestroy(generics.RetrieveDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+
+
+# TODO: Вот что делают классы выше неявно)))
 # class ProductApi(APIView):
 #     def get(self, request):
 #         p = Product.objects.all()

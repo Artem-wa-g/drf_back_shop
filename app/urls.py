@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -25,8 +25,11 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,
 )
-# from shop.views import ProductViewSet
+
 from rest_framework import routers
+
+
+from shop.views import ProductApiList, ProductAPIDestroy, ProductApiUpdate
 
 router = routers.SimpleRouter()
 
@@ -39,15 +42,19 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
-    # path('api/product-all/', ProductApi.as_view()),  # TODO: это пока оставлю
-    # path('api/product-all/<int:pk>', ProductApi.as_view()),
+    path('api/v1/drf-auth/', include('rest_framework.urls')),
 
-    # path('api/product-all2/', ProductApiList.as_view()),
-    # path('api/product-all2/<int:pk>/', ProductApiList.as_view()),
-    # path('api/product-all3/<int:pk>/', ProductApiUpdate.as_view()),
+    path('api/product/', ProductApiList.as_view()),
+    path('api/product/<int:pk>/', ProductApiUpdate.as_view()),
+    path('api/product/<int:pk>/', ProductAPIDestroy.as_view()),
 
-    # path('api/product-all/', ProductViewSet.as_view({'get': 'list'})),  # TODO: это пока оставлю
-    # path('api/product-all/<int:pk>', ProductViewSet.as_view({'put': 'update'})),
+    path('api/category/', ProductApiList.as_view()),
+    path('api/category/<int:pk>/', ProductApiUpdate.as_view()),
+    path('api/category/<int:pk>/', ProductAPIDestroy.as_view()),
+
+    path('api/v1/auth/', include('djoser.urls')),
+    re_path(r'^auth/', include('djoser.urls.authtoken')),
+
 
     # Самый элегантный способ
     # path('api/', include(router.urls))
